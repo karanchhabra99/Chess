@@ -18,10 +18,12 @@ class GameState():
         #"--" represents an empty space with no piece.
         self.dim = dim
         self.board = self.get_board()
+        self.black_board = self.board.T
         self.is_whites_Turn = True
         self.Player_turn = 1
         self.last_move = None
-        self.move = Move()
+        self.move = Move(dim)
+        self.human = HumanPlayer(self.dim)
 
     def get_board(self):
         board = np.array([
@@ -40,32 +42,34 @@ class GameState():
     def makeMove(self, start_square, end_square):
         flag = 0
 
-        # Checks if the move is valid
-        if abs(self.board[start_square[0], start_square[1]]) == 1:
-            if end_square in self.possible_move_pawn(start_square, end_square):
-                check = self.move.is_possible_pawn(self.board, self.is_whites_Turn, start_square, end_square, self.last_move)
-                if check[0]:
-                    flag = 1
-                    if (end_square[0] == 7) or (end_square[0] == 0):
-                        new_piece = input("Q or R or N or B: ")
-                        if new_piece.lower() == "q":
-                            self.board[start_square[0], start_square[1]] = self.Player_turn * 9
-                        elif new_piece.lower() == "r":
-                            self.board[start_square[0], start_square[1]] = self.Player_turn * 5
-                        elif new_piece.lower() == "n":
-                            self.board[start_square[0], start_square[1]] = self.Player_turn * 3
-                        elif new_piece.lower() == "b":
-                            self.board[start_square[0], start_square[1]] = self.Player_turn * 2
-                        else:
-                            print("Invalid Input\nConverting the piece to Queen")
-                            self.board[start_square[0], start_square[1]] = self.Player_turn * 9
-
-                    ## En passant
-                    if check[1] == 1:
-                        if self.is_whites_Turn:
-                            self.board[start_square[0], end_square[1]] = 0
-                        else:
-                            self.board[start_square[0], end_square[1]] = 0
+        if self.Player_turn == 1:
+            flag = self.human.play(self.board, start_square, end_square, self.last_move)
+        # # Checks if the move is valid
+        # if abs(self.board[start_square[0], start_square[1]]) == 1:
+        #     if end_square in self.possible_move_pawn(start_square, end_square):
+        #         check = self.move.is_possible_pawn(self.board, self.is_whites_Turn, start_square, end_square, self.last_move)
+        #         if check[0]:
+        #             flag = 1
+        #             if (end_square[0] == 7) or (end_square[0] == 0):
+        #                 new_piece = input("Q or R or N or B: ")
+        #                 if new_piece.lower() == "q":
+        #                     self.board[start_square[0], start_square[1]] = self.Player_turn * 9
+        #                 elif new_piece.lower() == "r":
+        #                     self.board[start_square[0], start_square[1]] = self.Player_turn * 5
+        #                 elif new_piece.lower() == "n":
+        #                     self.board[start_square[0], start_square[1]] = self.Player_turn * 3
+        #                 elif new_piece.lower() == "b":
+        #                     self.board[start_square[0], start_square[1]] = self.Player_turn * 2
+        #                 else:
+        #                     print("Invalid Input\nConverting the piece to Queen")
+        #                     self.board[start_square[0], start_square[1]] = self.Player_turn * 9
+        #
+        #             ## En passant
+        #             if check[1] == 1:
+        #                 if self.is_whites_Turn:
+        #                     self.board[start_square[0], end_square[1]] = 0
+        #                 else:
+        #                     self.board[start_square[0], end_square[1]] = 0
 
         ## Makes the move
         if flag == 1:
@@ -81,23 +85,39 @@ class GameState():
                 self.Player_turn = -1
                 print('\n\nBlacks Turn')
 
+
+
+
+class Move():
+    def __init__(self, dim):
+        self.king_first_move = False
+        self.rook_first_move = {}
+        self.en_passant_potentials = None
+        self.dim = dim
+        self.Player_turn = 1
+
+
     def possible_move_pawn(self, start_square, end_square):
         if end_square[1] >= self.dim:
             return []
 
-        if self.is_whites_Turn:
-            return [(start_square[0]-1, start_square[1]), (start_square[0]-2, start_square[1]),
-                    (start_square[0]-1, start_square[1]-1), (start_square[0]-1, start_square[1]+1)]
-        else:
-            return [(start_square[0] + 1, start_square[1]), (start_square[0] + 2, start_square[1]),
-                    (start_square[0]+1, start_square[1] - 1), (start_square[0]+1, start_square[1] + 1)]
+        return [(start_square[0]- (self.Player_turn *1), start_square[1]), (start_square[0]-(self.Player_turn *2), start_square[1]),
+                (start_square[0]-(self.Player_turn *1), start_square[1]-(self.Player_turn *1)), (start_square[0]-(self.Player_turn *1), start_square[1]+(self.Player_turn *1))]
+
+    def possible_move_knight(self, start_square, end_square):
+        if end_square[1] >= self.dim:
+            return []
+
+        return [(start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
+                (start_square[0] - (self.Player_turn *1), start_square + (self.Player_turn *2)),
+                (start_square[0] + (self.Player_turn *1), start_square - (self.Player_turn *2))
+                (start_square[0] - (self.Player_turn *1), start_square - (self.Player_turn *2)),
+                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
+                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
+                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
+                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2))]
 
 
-class Move():
-    def __init__(self):
-        self.king_first_move = False
-        self.rook_first_move = {}
-        self.en_passant_potentials = None
     def is_possible_pawn(self, board, is_whites_Turn, current_location, next_location, last_move):
         # Checking if it is attack or straight move
         if board[next_location[0], next_location[1]] == 0:
@@ -165,34 +185,44 @@ class Move():
                         return (True, 1)
         return (False, 0)
 
-# class Move():
-#     '''
-#     in chess the fields on the board are described by two symbols, one of them being number between 1-8 (which is corespodning to rows)
-#     and the second one being a letter between a-f (coresponding to columns), in order to use this notation we need to map our [row][col] coordinates
-#     to match the ones used in the original chess game
-#     '''
-#     ranks_to_rows = {"1": 7, "2": 6, "3": 5, "4": 4,
-#                      "5": 3, "6": 2, "7": 1, "8": 0}
-#     rows_to_ranks = {v: k for k, v in ranks_to_rows.items()}
-#     files_to_cols = {"a": 0, "b": 1, "c": 2, "d": 3,
-#                      "e": 4, "f": 5, "g": 6, "h": 7}
-#     cols_to_files = {v: k for k, v in files_to_cols.items()}
-#
-#     def __init__(self, start_square, end_square, board):
-#         self.start_row = start_square[0]
-#         self.start_col = start_square[1]
-#         self.end_row = end_square[0]
-#         self.end_col = end_square[1]
-#         self.piece_moved =
-#         self.piece_captured = board[self.end_row][self.end_col]
-#
-#     def getChessNotation(self):
-#         return self.piece_moved + " " + self.getRankFile(self.start_row, self.start_col) + "->" + self.getRankFile(self.end_row, self.end_col) + " " + self.piece_captured
-#
-#     def getRankFile(self, row, col):
-#         return self.cols_to_files[col] + self.rows_to_ranks[row]
-#
-        
+
+class HumanPlayer():
+    def __init__(self, dim):
+        self.move = Move(dim)
+        self.Player_turn = 1
+
+    def play(self, board, current_location, next_location, last_move):
+        # Checks if the move is valid
+        if board[current_location[0], current_location[1]] == 1:
+            # if next_location in self.move.possible_move_pawn(current_location, next_location):
+            #     check = self.move.is_possible_pawn(board, True, current_location, next_location, last_move)
+            #     if check[0]:
+            #         flag = 1
+            #         ##ToDo:
+            #         if (current_location[0] == 7):
+            #
+            #             new_piece = input("Q or R or N or B: ")
+            #             if new_piece.lower() == "q":
+            #                 board[current_location[0], current_location[1]] = self.Player_turn * 9
+            #             elif new_piece.lower() == "r":
+            #                 board[current_location[0], current_location[1]] = self.Player_turn * 5
+            #             elif new_piece.lower() == "n":
+            #                 board[current_location[0], current_location[1]] = self.Player_turn * 3
+            #             elif new_piece.lower() == "b":
+            #                 board[current_location[0], current_location[1]] = self.Player_turn * 2
+            #             else:
+            #                 print("Invalid Input\nConverting the piece to Queen")
+            #                 board[current_location[0], current_location[1]] = self.Player_turn * 9
+            #
+            #         ## En passant
+            #         if check[1] == 1:
+            #             if Player_turn == 1:
+            #                 board[current_location[0], next_location[1]] = 0
+            #             else:
+            #                 board[current_location[0], next_location[1]] = 0
+        return flag
+
+
         
         
         
