@@ -6,16 +6,23 @@ Determining valid moves at current state.
 It will keep move log.
 '''
 
-## Assumption : No En Passant, No Castling
+## Assumption : No Castling
 import numpy as np
+import copy
 
 class GameState():
-    def __init__(self):
+    def __init__(self, dim):
         #Board is an 8x8 2d list, each element in list has 2 characters.
         #The first character represtents the color of the piece: 'b' or 'w'.
         #The second character represtents the type of the piece: 'R', 'N', 'B', 'Q', 'K' or 'p'.
         #"--" represents an empty space with no piece.
-        self.board = np.array([
+        self.board = self.get_board(dim)
+        self.is_whites_Turn = True
+        self.last_move = None
+        self.move = Move()
+
+    def get_board(self, dim):
+        board = np.array([
             [-5, -3, -2, -9, -7, -2, -3, -5],
             [-1, -1, -1, -1, -1, -1, -1, -1],
             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -24,10 +31,9 @@ class GameState():
             [0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [5, 3, 2, 9, 7, 2, 3, 5]])
-        self.is_whites_Turn = True
-        self.last_move = None
-        self.move = Move()
-        
+
+        return copy.deepcopy(board[:,:dim])
+
     def makeMove(self, start_square, end_square):
         flag = 0
         if abs(self.board[start_square[0], start_square[1]]) == 1:
