@@ -96,6 +96,35 @@ class Move():
         self.dim = dim
         self.Player_turn = 1
 
+    def check_piece_and_play(self, board, current_location, next_location, last_move):
+        if next_location in self.possible_move_pawn(current_location, next_location):
+            check = self.is_possible_pawn(board, True, current_location, next_location, last_move)
+            if check[0]:
+                flag = 1
+                ##ToDo:
+                if (current_location[0] == 7):
+
+                    new_piece = input("Q or R or N or B: ")
+                    if new_piece.lower() == "q":
+                        board[current_location[0], current_location[1]] = self.Player_turn * 9
+                    elif new_piece.lower() == "r":
+                        board[current_location[0], current_location[1]] = self.Player_turn * 5
+                    elif new_piece.lower() == "n":
+                        board[current_location[0], current_location[1]] = self.Player_turn * 3
+                    elif new_piece.lower() == "b":
+                        board[current_location[0], current_location[1]] = self.Player_turn * 2
+                    else:
+                        print("Invalid Input\nConverting the piece to Queen")
+                        board[current_location[0], current_location[1]] = self.Player_turn * 9
+
+                ## En passant
+                if check[1] == 1:
+                    if self.Player_turn == 1:
+                        board[current_location[0], next_location[1]] = 0
+                    else:
+                        board[current_location[0], next_location[1]] = 0
+                return flag
+        return 0
 
     def possible_move_pawn(self, start_square, end_square):
         if end_square[1] >= self.dim:
@@ -194,6 +223,7 @@ class HumanPlayer():
     def play(self, board, current_location, next_location, last_move):
         # Checks if the move is valid
         if board[current_location[0], current_location[1]] == 1:
+            return self.move.check_piece_and_play(board, current_location, next_location, last_move)
             # if next_location in self.move.possible_move_pawn(current_location, next_location):
             #     check = self.move.is_possible_pawn(board, True, current_location, next_location, last_move)
             #     if check[0]:
@@ -220,7 +250,7 @@ class HumanPlayer():
             #                 board[current_location[0], next_location[1]] = 0
             #             else:
             #                 board[current_location[0], next_location[1]] = 0
-        return flag
+        return False
 
 
         
