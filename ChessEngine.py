@@ -16,12 +16,13 @@ class GameState():
         #The first character represtents the color of the piece: 'b' or 'w'.
         #The second character represtents the type of the piece: 'R', 'N', 'B', 'Q', 'K' or 'p'.
         #"--" represents an empty space with no piece.
-        self.board = self.get_board(dim)
+        self.dim = dim
+        self.board = self.get_board()
         self.is_whites_Turn = True
         self.last_move = None
         self.move = Move()
 
-    def get_board(self, dim):
+    def get_board(self):
         board = np.array([
             [-5, -3, -2, -9, -7, -2, -3, -5],
             [-1, -1, -1, -1, -1, -1, -1, -1],
@@ -32,20 +33,26 @@ class GameState():
             [1, 1, 1, 1, 1, 1, 1, 1],
             [5, 3, 2, 9, 7, 2, 3, 5]])
 
-        return copy.deepcopy(board[:,:dim])
+        return copy.deepcopy(board[:,:self.dim])
+
 
     def makeMove(self, start_square, end_square):
         flag = 0
+
+        # Checks if the move is valid
         if abs(self.board[start_square[0], start_square[1]]) == 1:
-            check = self.move.is_possible_pawn(self.board, self.is_whites_Turn, start_square, end_square, self.last_move)
-            if check[0]:
-                flag = 1
-                ## En passant
-                if check[1] == 1:
-                    if self.is_whites_Turn:
-                        self.board[start_square[0], end_square[1]] = 0
-                    else:
-                        self.board[start_square[0], end_square[1]] = 0
+            if end_square in self.possible_move_pawn(start_square, end_square):
+                check = self.move.is_possible_pawn(self.board, self.is_whites_Turn, start_square, end_square, self.last_move)
+                if check[0]:
+                    flag = 1
+                    ## En passant
+                    if check[1] == 1:
+                        if self.is_whites_Turn:
+                            self.board[start_square[0], end_square[1]] = 0
+                        else:
+                            self.board[start_square[0], end_square[1]] = 0
+
+        ## Makes the move
         if flag == 1:
             self.last_move = (self.board[start_square[0], start_square[1]], end_square[0], end_square[1])
             self.board[end_square[0], end_square[1]] = self.board[start_square[0], start_square[1]]
@@ -56,6 +63,18 @@ class GameState():
                 print("\n\nWhites Turn")
             else:
                 print('\n\nBlacks Turn')
+
+    def possible_move_pawn(self, start_square, end_square):
+        if end_square[1] >= self.dim:
+            return []
+        
+        if self.is_whites_Turn:
+            return [(start_square[0]-1, start_square[1]), (start_square[0]-2, start_square[1]),
+                    (start_square[0]-1, start_square[1]-1), (start_square[0]-1, start_square[1]+1)]
+        else:
+            return [(start_square[0] + 1, start_square[1]), (start_square[0] + 2, start_square[1]),
+                    (start_square[0]+1, start_square[1] - 1), (start_square[0]+1, start_square[1] + 1)]
+
 
 class Move():
     def __init__(self):
