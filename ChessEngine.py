@@ -19,6 +19,7 @@ class GameState():
         self.dim = dim
         self.board = self.get_board()
         self.is_whites_Turn = True
+        self.Player_turn = 1
         self.last_move = None
         self.move = Move()
 
@@ -45,6 +46,20 @@ class GameState():
                 check = self.move.is_possible_pawn(self.board, self.is_whites_Turn, start_square, end_square, self.last_move)
                 if check[0]:
                     flag = 1
+                    if (end_square[0] == 7) or (end_square[0] == 0):
+                        new_piece = input("Q or R or N or B: ")
+                        if new_piece.lower() == "q":
+                            self.board[start_square[0], start_square[1]] = self.Player_turn * 9
+                        elif new_piece.lower() == "r":
+                            self.board[start_square[0], start_square[1]] = self.Player_turn * 5
+                        elif new_piece.lower() == "n":
+                            self.board[start_square[0], start_square[1]] = self.Player_turn * 3
+                        elif new_piece.lower() == "b":
+                            self.board[start_square[0], start_square[1]] = self.Player_turn * 2
+                        else:
+                            print("Invalid Input\nConverting the piece to Queen")
+                            self.board[start_square[0], start_square[1]] = self.Player_turn * 9
+
                     ## En passant
                     if check[1] == 1:
                         if self.is_whites_Turn:
@@ -60,14 +75,16 @@ class GameState():
 
             self.is_whites_Turn = not self.is_whites_Turn #switch players
             if self.is_whites_Turn:
+                self.Player_turn = 1
                 print("\n\nWhites Turn")
             else:
+                self.Player_turn = -1
                 print('\n\nBlacks Turn')
 
     def possible_move_pawn(self, start_square, end_square):
         if end_square[1] >= self.dim:
             return []
-        
+
         if self.is_whites_Turn:
             return [(start_square[0]-1, start_square[1]), (start_square[0]-2, start_square[1]),
                     (start_square[0]-1, start_square[1]-1), (start_square[0]-1, start_square[1]+1)]
