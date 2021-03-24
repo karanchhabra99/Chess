@@ -66,7 +66,7 @@ class Move():
     def check_piece_and_play(self, board, current_location, next_location, Player_turn, last_move):
         self.Player_turn = Player_turn
         if abs(board[current_location[0], current_location[1]]) == 1:
-            if next_location in self.possible_move_pawn(current_location, next_location):
+            if next_location in self.all_move_pawn(current_location, next_location):
                 check = self.is_possible_pawn(board, current_location, next_location, last_move)
                 if check[0]:
                     flag = 1
@@ -95,14 +95,14 @@ class Move():
                     return flag
         return 0
 
-    def possible_move_pawn(self, start_square, end_square):
+    def all_move_pawn(self, start_square, end_square):
         if end_square[1] >= self.dim:
             return []
 
         return [(start_square[0]- (self.Player_turn *1), start_square[1]), (start_square[0]-(self.Player_turn *2), start_square[1]),
                 (start_square[0]-(self.Player_turn *1), start_square[1]-(self.Player_turn *1)), (start_square[0]-(self.Player_turn *1), start_square[1]+(self.Player_turn *1))]
 
-    def possible_move_knight(self, start_square, end_square):
+    def all_move_knight(self, start_square, end_square):
         if end_square[1] >= self.dim:
             return []
 
