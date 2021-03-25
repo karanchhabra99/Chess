@@ -12,10 +12,10 @@ class GameState():
         self.dim = dim
         self.board = self.get_board()
         self.black_board = np.flipud(self.board)
-        # self.is_whites_Turn = True
         self.Player_turn = 1
         self.last_move = None
 
+        ## ToDO: AI and Human
         self.human = HumanPlayer(self.dim, self.move)
         self.human2 = HumanPlayer(self.dim, self.move)
 
@@ -35,23 +35,28 @@ class GameState():
 
     def makeMove(self, start_square, end_square):
         flag = 0
-
+        # Change Player turns and Check if move is valid
         if self.Player_turn == 1:
-            flag = self.human.play(self.board, start_square, end_square, self.Player_turn, self.last_move)
+            ## Checking if the correct piece is chosen
+            if self.board[start_square[0],start_square[1]] > 0:
+                flag = self.human.play(self.board, start_square, end_square, self.Player_turn, self.last_move)
         else:
-            if self.board[start_square[0], start_square[1]] == -1:
-                temp1 = self.board[start_square[0], start_square[1]]
-                self.board[start_square[0], start_square[1]] = 25
-                inverse_start = np.where(self.black_board == 25)
-                self.board[start_square[0], start_square[1]] = temp1
+            ## Checking if the correct piece is chosen
+            if self.board[start_square[0],start_square[1]] < 0:
+                if self.board[start_square[0], start_square[1]] == -1:
+                    temp1 = self.board[start_square[0], start_square[1]]
+                    self.board[start_square[0], start_square[1]] = 25
+                    inverse_start = np.where(self.black_board == 25)
+                    self.board[start_square[0], start_square[1]] = temp1
 
-                temp2 = self.board[end_square[0], end_square[1]]
-                self.board[end_square[0], end_square[1]] = 25
-                inverse_end = np.where(self.black_board == 25)
-                self.board[end_square[0], end_square[1]] = temp2
-                print(self.black_board)
+                    temp2 = self.board[end_square[0], end_square[1]]
+                    self.board[end_square[0], end_square[1]] = 25
+                    inverse_end = np.where(self.black_board == 25)
+                    self.board[end_square[0], end_square[1]] = temp2
 
-                flag = self.human2.play(self.black_board, (inverse_start[0][0], inverse_start[1][0]), (inverse_end[0][0], inverse_end[1][0]), self.Player_turn, self.last_move)
+                    flag = self.human2.play(self.black_board, (inverse_start[0][0], inverse_start[1][0]), (inverse_end[0][0], inverse_end[1][0]), self.Player_turn, self.last_move)
+                else:
+                    flag = self.human2.play(self.board, start_square, end_square, self.Player_turn, self.last_move)
 
         ## Makes the move
         if flag == 1:
@@ -59,7 +64,6 @@ class GameState():
             self.board[end_square[0], end_square[1]] = self.board[start_square[0], start_square[1]]
             self.board[start_square[0], start_square[1]] = 0
 
-            # self.is_whites_Turn = not self.is_whites_Turn #switch players
             if self.Player_turn == 1:
                 self.Player_turn = -1
                 print('\n\nBlacks Turn')
@@ -81,15 +85,12 @@ class Move():
             return self.pawn_move_checker_en_passant(board, current_location, next_location, last_move)
 
     def pawn_move_checker_en_passant(self, board, current_location, next_location, last_move):
-        print(f"Current{current_location}\nNext {next_location}")
         if next_location in self.all_move_pawn(current_location, next_location):
-            print("here")
             check = self.is_possible_pawn(board, current_location, next_location, last_move)
             if check[0]:
                 flag = 1
                 ##ToDo:
-                if (current_location[0] == 7):
-
+                if (next_location[0] == 0):
                     new_piece = input("Q or R or N or B: ")
                     if new_piece.lower() == "q":
                         board[current_location[0], current_location[1]] = self.Player_turn * 9
@@ -116,8 +117,51 @@ class Move():
         return [(start_square[0]- 1, start_square[1]), (start_square[0]-2, start_square[1]),
                 (start_square[0]-1, start_square[1]-1), (start_square[0]-1, start_square[1]+1)]
 
-        # return [(start_square[0]- (self.Player_turn *1), start_square[1]), (start_square[0]-(self.Player_turn *2), start_square[1]),
-        #         (start_square[0]-(self.Player_turn *1), start_square[1]-(self.Player_turn *1)), (start_square[0]-(self.Player_turn *1), start_square[1]+(self.Player_turn *1))]
+    def is_possible_pawn(self, board, current_location, next_location, last_move):
+        # Checking if it is attack or straight move
+        if board[next_location[0], next_location[1]] == 0:
+            ## Straight move
+            ## Checking if the move is possible or not
+            check= self.is_possible_pawn_helper(board, current_location, next_location)
+            ## if the move is possible
+            if check[0]:
+                ## Checking if the move is 2 steps ahead
+                if check[1] ==1:
+                    if self.Player_turn == -1:
+                        board[next_location[0], next_location[1]] = 25
+                        inverse_board = np.flipud(board)
+                        inverse_move = np.where(inverse_board == 25)
+                        self.en_passant_potentials = (inverse_move[0][0], inverse_move[1][0])
+                    else:
+                        self.en_passant_potentials = next_location
+                return (True, 0)
+
+        ## Attach move
+        if (current_location[1]+1 == next_location[1]) or (current_location[1]-1 == next_location[1]):
+            if current_location[0] - next_location[0] == 1:
+                if board[next_location[0], next_location[1]] != 0:
+                    return (True, 0)
+                ## En Passant
+                if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
+                    if abs(board[current_location[0], next_location[1]]) == 1:
+                        return (True, 1)
+
+        return (False, 0)
+
+    def is_possible_pawn_helper(self, board, higher_location_index, lower_location_index):
+        ## One move forward
+        if higher_location_index[0] - lower_location_index[0] == 1:
+            if higher_location_index[1] == lower_location_index[1]:
+                return (True, 0)
+
+        ## Two moves forward
+        elif higher_location_index[0] - lower_location_index[0] == 2:
+            if higher_location_index[0] != board.shape[0] - 2:
+                return (False, 0)
+            else:
+                if board[higher_location_index[0] - 1, higher_location_index[1]] == 0:
+                    return (True, 1)
+        return (False, 0)
 
     def all_move_knight(self, start_square, end_square):
         if end_square[1] >= self.dim:
@@ -133,88 +177,6 @@ class Move():
                 (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2))]
 
 
-    def is_possible_pawn(self, board, current_location, next_location, last_move):
-        # Checking if it is attack or straight move
-        if board[next_location[0], next_location[1]] == 0:
-            print('1 Checkpoint')
-            ## Straight move
-            # if self.Player_turn == 1:
-            ## Checking if the move is possible or not
-            check= self.is_possible_pawn_helper(board, current_location, next_location)
-            print('2 Checkpoint')
-            print(f'{check}')
-            ## if the move is possibel
-            if check[0]:
-                ## Checking if the move is 2 steps ahead
-                if check[1] ==1:
-                    if self.Player_turn == -1:
-                        board[next_location[0], next_location[1]] = 25
-                        inverse_board = np.flipud(board)
-                        inverse_move = np.where(inverse_board == 25)
-                        # self.board[start_square[0], start_square[1]] = temp1
-                        self.en_passant_potentials = (inverse_move[0][0],inverse_move[1][0])
-                    else:
-                        self.en_passant_potentials = next_location
-                return (True, 0)
-            # else:
-            #     check = self.is_possible_pawn_helper(board, next_location, current_location)
-            #     if check[0]:
-            #         ## Checking if the move is 2 steps ahead
-            #         if check[1] ==1:
-            #             self.en_passant_potentials = next_location
-            #         return (True, 0)
-        ## Attach move
-        if (current_location[1]+1 == next_location[1]) or (current_location[1]-1 == next_location[1]):
-            print("3Chec")
-            # if self.Player_turn == 1:
-            # change in row by 1
-            if current_location[0] - next_location[0] == 1:
-                if board[next_location[0], next_location[1]] != 0:
-                    return (True, 0)
-                ## En Passant
-                print('eee')
-                if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
-                    print('en')
-                    # if last_move[0] == -1:
-                    #     print('en Pas')
-                    if abs(board[current_location[0], next_location[1]]) == 1:
-                        print('en Pas')
-                        return (True, 1)
-
-            # else:
-            #     if next_location[0] - current_location[0] == 1:
-            #         if board[next_location[0], next_location[1]] > 0:
-            #             return (True, 0)
-            #         ## En Passant
-            #         if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
-            #             if last_move[0] == 1:
-            #                 if board[current_location[0], next_location[1]] == 1:
-            #                     return (True, 1)
-        return (False, 0)
-
-    def is_possible_pawn_helper(self, board, higher_location_index, lower_location_index):
-        ## One move forward
-        if higher_location_index[0] - lower_location_index[0] == 1:
-            if higher_location_index[1] == lower_location_index[1]:
-                return (True, 0)
-        ## Two moves forward
-        elif higher_location_index[0] - lower_location_index[0] == 2:
-            # ## Whites Turn
-            # if self.Player_turn == 1:
-            if higher_location_index[0] != board.shape[0] - 2:
-                return (False, 0)
-            else:
-                if board[higher_location_index[0] - 1, higher_location_index[1]] == 0:
-                    return (True, 1)
-            ## Blacks_turn
-            # else:
-            #     if lower_location_index[0] != 1:
-            #         return (False, 0)
-            #     else:
-            #         if board[higher_location_index[0] - 1, higher_location_index[1]] == 0:
-            #             return (True, 1)
-        return (False, 0)
-
 
 class HumanPlayer():
     def __init__(self, dim, move):
@@ -223,9 +185,3 @@ class HumanPlayer():
     def play(self, board, current_location, next_location, Player_turn, last_move):
         # Checks if the move is valid
         return self.move.check_piece_and_play(board, current_location, next_location, Player_turn, last_move)
-
-
-        
-        
-        
-        
