@@ -81,8 +81,10 @@ class Move():
 
     def check_piece_and_play(self, board, current_location, next_location, Player_turn, last_move):
         self.Player_turn = Player_turn
-        if abs(board[current_location[0], current_location[1]]) == 1:
+        if board[current_location[0], current_location[1]] == self.Player_turn * 1:
             return self.pawn_move_checker_en_passant(board, current_location, next_location, last_move)
+        if board[current_location[0], current_location[1]] == self.Player_turn * 3:
+            return self.knight_move_checker(board, current_location, next_location)
 
     def pawn_move_checker_en_passant(self, board, current_location, next_location, last_move):
         if next_location in self.all_move_pawn(current_location, next_location):
@@ -91,12 +93,12 @@ class Move():
                 flag = 1
                 ##ToDo:
                 if (next_location[0] == 0):
-                    new_piece = input("Q or R or N or B: ")
+                    new_piece = input("Q or R or K or B: ")
                     if new_piece.lower() == "q":
                         board[current_location[0], current_location[1]] = self.Player_turn * 9
                     elif new_piece.lower() == "r":
                         board[current_location[0], current_location[1]] = self.Player_turn * 5
-                    elif new_piece.lower() == "n":
+                    elif new_piece.lower() == "k":
                         board[current_location[0], current_location[1]] = self.Player_turn * 3
                     elif new_piece.lower() == "b":
                         board[current_location[0], current_location[1]] = self.Player_turn * 2
@@ -141,10 +143,13 @@ class Move():
             if current_location[0] - next_location[0] == 1:
                 if board[next_location[0], next_location[1]] != 0:
                     return (True, 0)
-                ## En Passant
-                if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
-                    if abs(board[current_location[0], next_location[1]]) == 1:
-                        return (True, 1)
+                if self.en_passant_potentials != None:
+                    ## En Passant
+                    if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
+                        # if (current_location[0] == self.en_passant_potentials[0]) and (next_location[1] == self.en_passant_potentials[1]):
+                        if board[current_location[0], next_location[1]] == self.Player_turn *-1:
+                            print("en Passant")
+                            return (True, 1)
 
         return (False, 0)
 
@@ -163,18 +168,28 @@ class Move():
                     return (True, 1)
         return (False, 0)
 
+    def knight_move_checker(self, board, current_location, next_location):
+        if next_location in self.all_move_knight(current_location, next_location):
+            if self.Player_turn == 1:
+                if board[next_location[0], next_location[1]] <= 0:
+                    return 1
+            else:
+                if board[next_location[0], next_location[1]] >= 0:
+                    return 1
+        return 0
+
     def all_move_knight(self, start_square, end_square):
         if end_square[1] >= self.dim:
             return []
 
-        return [(start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
-                (start_square[0] - (self.Player_turn *1), start_square + (self.Player_turn *2)),
-                (start_square[0] + (self.Player_turn *1), start_square - (self.Player_turn *2))
-                (start_square[0] - (self.Player_turn *1), start_square - (self.Player_turn *2)),
-                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
-                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
-                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2)),
-                (start_square[0] + (self.Player_turn *1), start_square + (self.Player_turn *2))]
+        return [(start_square[0] + 1, start_square[1] + 2),
+                (start_square[0] - 1, start_square[1] - 2),
+                (start_square[0] + 1, start_square[1] - 2),
+                (start_square[0] - 1, start_square[1] + 2),
+                (start_square[0] + 2, start_square[1] + 1),
+                (start_square[0] - 2, start_square[1] - 1),
+                (start_square[0] + 2, start_square[1] - 1),
+                (start_square[0] - 2, start_square[1] + 1)]
 
 
 
