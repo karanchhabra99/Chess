@@ -83,7 +83,9 @@ class Move():
         self.Player_turn = Player_turn
         if board[current_location[0], current_location[1]] == self.Player_turn * 1:
             return self.pawn_move_checker_en_passant(board, current_location, next_location, last_move)
-        if board[current_location[0], current_location[1]] == self.Player_turn * 3:
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 2:
+            return self.bishop_move_checker(board, current_location, next_location)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 3:
             return self.knight_move_checker(board, current_location, next_location)
 
     def pawn_move_checker_en_passant(self, board, current_location, next_location, last_move):
@@ -133,7 +135,7 @@ class Move():
                         board[next_location[0], next_location[1]] = 25
                         inverse_board = np.flipud(board)
                         inverse_move = np.where(inverse_board == 25)
-                        self.en_passant_potentials = (inverse_move[0][0], inverse_move[1][0])
+                        self.en_passant_potentials = (inverse_move[0][0], next_location[1])
                     else:
                         self.en_passant_potentials = next_location
                 return (True, 0)
@@ -145,11 +147,10 @@ class Move():
                     return (True, 0)
                 if self.en_passant_potentials != None:
                     ## En Passant
-                    if (last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1]):
-                        # if (current_location[0] == self.en_passant_potentials[0]) and (next_location[1] == self.en_passant_potentials[1]):
-                        if board[current_location[0], next_location[1]] == self.Player_turn *-1:
-                            print("en Passant")
-                            return (True, 1)
+                    if ((last_move[1] == self.en_passant_potentials[0]) and (last_move[2] == self.en_passant_potentials[1])):
+                        if (current_location[0] == 3) and (next_location[1] == self.en_passant_potentials[1]):
+                            if board[current_location[0], next_location[1]] == self.Player_turn *-1:
+                                return (True, 1)
 
         return (False, 0)
 
@@ -191,6 +192,11 @@ class Move():
                 (start_square[0] + 2, start_square[1] - 1),
                 (start_square[0] - 2, start_square[1] + 1)]
 
+    # def bishop_move_checker(self, board, current_location, next_location):
+    #
+    #
+    # def diagonal_moves(self, board, current_location):
+    #
 
 
 class HumanPlayer():
