@@ -250,16 +250,95 @@ class Bishop():
         return col
 
 
+class Rook:
+    def __init__(self, dim):
+        self.dim = dim
+        self.Player_turn = 1
 
+    def rook_move_checker(self, board, current_location, next_location, Player_turn):
+        self.Player_turn = Player_turn
+        if next_location in self.straight_moves(board, current_location):
+            return 1
+        return 0
+
+    def straight_moves(self, board, current_location):
+        all_moves = []
+        i = current_location[0]+1
+        while self.dim > i:
+            i = self.straight_moves_col_helper(board, i, current_location, all_moves, 'forward')
+        i = current_location[0]-1
+        while 0 <= i:
+            i = self.straight_moves_col_helper(board, i, current_location, all_moves, 'backward')
+
+        ## Horizontal
+        i = current_location[1]+1
+        while self.dim > i:
+            i = self.straight_moves_horizontal_helper(board, i, current_location, all_moves, 'forward')
+        i = current_location[1]-1
+        while 0 <= i:
+            i = self.straight_moves_horizontal_helper(board, i, current_location, all_moves, 'backward')
+        print(all_moves)
+        return all_moves
+
+    def straight_moves_col_helper(self, board, i, current_location, all_moves, direction):
+        if board[i, current_location[1]] == 0:
+            all_moves.append((i, current_location[1]))
+        elif board[i, current_location[1]] < 0:
+            if self.Player_turn == 1:
+                all_moves.append((i, current_location[1]))
+            if direction == 'forward':
+                i = 8
+            else:
+                i = 0
+        elif board[i, current_location[1]] > 0:
+            if self.Player_turn == -1:
+                all_moves.append((i, current_location[1]))
+            if direction == 'forward':
+                i = 8
+            else:
+                i = 0
+        else:
+            i = 8
+        if direction == 'forward':
+            i+=1
+        else:
+            i-=1
+        return i
+
+    def straight_moves_horizontal_helper(self, board, i, current_location, all_moves, direction):
+        if board[current_location[0], i] == 0:
+            all_moves.append((current_location[0], i))
+        elif board[current_location[0], i] < 0:
+            if self.Player_turn == 1:
+                all_moves.append((current_location[0], i))
+            if direction == 'forward':
+                i = 8
+            else:
+                i = 0
+        elif board[current_location[0], i] > 0:
+            if self.Player_turn == -1:
+                all_moves.append((current_location[0], i))
+            if direction == 'forward':
+                i = 8
+            else:
+                i = 0
+        else:
+            i = 8
+        if direction == 'forward':
+            i+=1
+        else:
+            i-=1
+        return i
 
 
 class Move():
     def __init__(self, dim):
-        self.king_first_move = False
-        self.rook_first_move = {}
+        # self.king_first_move = False
+        # self.rook_first_move = {}
         self.pawn = Pawn(dim)
         self.knight = Knight(dim)
         self.bishop = Bishop(dim)
+        self.rook = Rook(dim)
         self.dim = dim
         self.Player_turn = 1
 
@@ -271,6 +350,8 @@ class Move():
             return self.bishop.bishop_move_checker(board, current_location, next_location, Player_turn)
         elif board[current_location[0], current_location[1]] == self.Player_turn * 3:
             return self.knight.knight_move_checker(board, current_location, next_location, Player_turn)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 5:
+            return self.rook.rook_move_checker(board, current_location, next_location, Player_turn)
 
 
 
