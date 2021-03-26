@@ -428,9 +428,7 @@ class Move():
         elif board[current_location[0], current_location[1]] == self.Player_turn * 1000:
             return self.king.king_move_checker(board, current_location, next_location, Player_turn)
         else:
-            return 1
-
-
+            return 0
 
 
 
