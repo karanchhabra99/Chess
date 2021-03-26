@@ -277,7 +277,6 @@ class Rook:
         i = current_location[1]-1
         while 0 <= i:
             i = self.straight_moves_horizontal_helper(board, i, current_location, all_moves, 'backward')
-        print(all_moves)
         return all_moves
 
     def straight_moves_col_helper(self, board, i, current_location, all_moves, direction):
@@ -330,6 +329,21 @@ class Rook:
             i-=1
         return i
 
+class Queen():
+    def __init__(self, dim):
+        self.dim = dim
+        self.Player_turn = 1
+        self.bishop = Bishop(dim)
+        self.rook = Rook(dim)
+
+    def queen_move_checker(self, board, current_location, next_location, Player_turn):
+        self.Player_turn = Player_turn
+        all_moves = self.rook.straight_moves(board, current_location) + self.bishop.diagonal_moves(board, current_location)
+        print(all_moves)
+        if next_location in all_moves:
+            return 1
+        return 0
+
 
 class Move():
     def __init__(self, dim):
@@ -339,6 +353,7 @@ class Move():
         self.knight = Knight(dim)
         self.bishop = Bishop(dim)
         self.rook = Rook(dim)
+        self.queen = Queen(dim)
         self.dim = dim
         self.Player_turn = 1
 
@@ -352,6 +367,8 @@ class Move():
             return self.knight.knight_move_checker(board, current_location, next_location, Player_turn)
         elif board[current_location[0], current_location[1]] == self.Player_turn * 5:
             return self.rook.rook_move_checker(board, current_location, next_location, Player_turn)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 9:
+            return self.queen.queen_move_checker(board, current_location, next_location, Player_turn)
 
 
 
