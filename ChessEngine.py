@@ -341,10 +341,63 @@ class Queen():
     def queen_move_checker(self, board, current_location, next_location, Player_turn):
         self.Player_turn = Player_turn
         all_moves = self.rook.straight_moves(board, current_location, Player_turn) + self.bishop.diagonal_moves(board, current_location, Player_turn)
-        print(all_moves)
         if next_location in all_moves:
             return 1
         return 0
+
+class King():
+    def __init__(self, dim):
+        self.dim = dim
+        self.Player_turn = 1
+
+    def king_move_checker(self, board, current_location, next_location, Player_turn):
+        self.Player_turn = Player_turn
+        if next_location in self.king_moves(board, current_location):
+            return 1
+        return 0
+
+    def king_moves(self, board, current_location):
+        all_move =[]
+        row_plus = False
+        row_minus = False
+        col_plus = False
+        col_minus = False
+        # row
+        if current_location[0] + 1 < 8:
+            self.king_moves_helper(board, current_location[0] + 1, current_location[1], all_move)
+            row_plus= True
+        if current_location[0] - 1 >= 0:
+            self.king_moves_helper(board, current_location[0] - 1, current_location[1], all_move)
+            row_minus = True
+
+        # Col
+        if current_location[1] + 1 < self.dim:
+            self.king_moves_helper(board, current_location[0], current_location[1]+1, all_move)
+            col_plus = True
+        if current_location[1] - 1 >= 0:
+            self.king_moves_helper(board, current_location[0], current_location[1]-1, all_move)
+            col_minus = True
+
+        if (row_plus and col_plus):
+            self.king_moves_helper(board, current_location[0] + 1, current_location[1] + 1, all_move)
+
+        if (row_plus and col_minus):
+            self.king_moves_helper(board, current_location[0] + 1, current_location[1] - 1, all_move)
+
+        if (row_minus and col_plus):
+            self.king_moves_helper(board, current_location[0] - 1, current_location[1] + 1, all_move)
+
+        if (row_minus and col_minus):
+            self.king_moves_helper(board, current_location[0] - 1, current_location[1] - 1, all_move)
+        return all_move
+
+    def king_moves_helper(self, board, row, col, all_move):
+        if self.Player_turn == 1:
+            if board[row, col] <= 0:
+                all_move.append((row, col))
+        else:
+            if board[row, col] >= 0:
+                all_move.append((row, col))
 
 
 class Move():
@@ -356,6 +409,7 @@ class Move():
         self.bishop = Bishop(dim)
         self.rook = Rook(dim)
         self.queen = Queen(dim)
+        self.king = King(dim)
         self.dim = dim
         self.Player_turn = 1
 
@@ -371,6 +425,11 @@ class Move():
             return self.rook.rook_move_checker(board, current_location, next_location, Player_turn)
         elif board[current_location[0], current_location[1]] == self.Player_turn * 9:
             return self.queen.queen_move_checker(board, current_location, next_location, Player_turn)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 1000:
+            return self.king.king_move_checker(board, current_location, next_location, Player_turn)
+        else:
+            return 1
+
 
 
 
