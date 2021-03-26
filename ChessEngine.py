@@ -199,7 +199,8 @@ class Bishop():
             return 1
         return 0
 
-    def diagonal_moves(self, board, current_location):
+    def diagonal_moves(self, board, current_location, Player_turn):
+        self.Player_turn = Player_turn
         all_moves = []
         forward_col = current_location[1]
         backward_col = current_location[1]
@@ -261,7 +262,8 @@ class Rook:
             return 1
         return 0
 
-    def straight_moves(self, board, current_location):
+    def straight_moves(self, board, current_location, Player_turn):
+        self.Player_turn = Player_turn
         all_moves = []
         i = current_location[0]+1
         while self.dim > i:
@@ -338,7 +340,7 @@ class Queen():
 
     def queen_move_checker(self, board, current_location, next_location, Player_turn):
         self.Player_turn = Player_turn
-        all_moves = self.rook.straight_moves(board, current_location) + self.bishop.diagonal_moves(board, current_location)
+        all_moves = self.rook.straight_moves(board, current_location, Player_turn) + self.bishop.diagonal_moves(board, current_location, Player_turn)
         print(all_moves)
         if next_location in all_moves:
             return 1
