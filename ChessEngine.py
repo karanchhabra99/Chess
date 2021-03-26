@@ -192,11 +192,59 @@ class Move():
                 (start_square[0] + 2, start_square[1] - 1),
                 (start_square[0] - 2, start_square[1] + 1)]
 
-    # def bishop_move_checker(self, board, current_location, next_location):
-    #
-    #
-    # def diagonal_moves(self, board, current_location):
-    #
+    def bishop_move_checker(self, board, current_location, next_location):
+        if next_location in self.diagonal_moves(board, current_location):
+            return 1
+        return 0
+
+
+    def diagonal_moves(self, board, current_location):
+        all_moves = []
+        forward_col = current_location[1]
+        backward_col = current_location[1]
+        for i in range(current_location[0]+1, self.dim):
+            forward_col, backward_col = self.diagonal_moves_helper(board, i, forward_col, backward_col, all_moves)
+
+        forward_col = current_location[1]
+        backward_col = current_location[1]
+        for i in range(current_location[0]-1, -1, -1):
+            forward_col, backward_col = self.diagonal_moves_helper(board, i, forward_col, backward_col, all_moves)
+
+        print(all_moves)
+        return all_moves
+
+    def diagonal_moves_helper(self, board, i, forward_col, backward_col, all_moves):
+        forward_col += 1
+        backward_col -= 1
+        if forward_col <= 7:
+            forward_col = self.diagonal_moves_helpers_helper(board, i, forward_col, all_moves, 'forward')
+
+        if not backward_col < 0:
+            backward_col = self.diagonal_moves_helpers_helper(board, i, backward_col, all_moves, 'backward')
+
+        return forward_col, backward_col
+
+    def diagonal_moves_helpers_helper(self, board, i, col, all_moves, direction):
+        if board[i, col] == 0:
+            all_moves.append((i, col))
+        elif board[i, col] < 0:
+            if self.Player_turn == 1:
+                all_moves.append((i, col))
+                if direction == 'forward':
+                    col = 8
+                else:
+                    col = 0
+        elif board[i, col] > 0:
+            if self.Player_turn == -1:
+                all_moves.append((i, col))
+                if direction == 'forward':
+                    col = 8
+                else:
+                    col = 0
+        else:
+            col = 8
+
+        return col
 
 
 class HumanPlayer():
