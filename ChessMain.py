@@ -25,7 +25,7 @@ This will be called exactly once in the main.
 '''
 
 def loadImages():
-    pieces = ['1', '5', '3', '2', '7', '9', '-1', '-5', '-3', '-2', '-7', '-9']
+    pieces = ['1', '5', '3', '2', '1000', '9', '-1', '-5', '-3', '-2', '-1000', '-9']
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("images/" + piece + ".png"), (SQUARE_SIZE,SQUARE_SIZE))
         

@@ -21,14 +21,14 @@ class GameState():
 
     def get_board(self):
         board = np.array([
-            [-5, -3, -2, -9, -7, -2, -3, -5],
+            [-5, -3, -2, -9, -1000, -2, -3, -5],
             [-1, -1, -1, -1, -1, -1, -1, -1],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [5, 3, 2, 9, 7, 2, 3, 5]])
+            [5, 3, 2, 9, 1000, 2, 3, 5]])
 
         return copy.deepcopy(board[:,:self.dim])
 
@@ -71,24 +71,14 @@ class GameState():
                 self.Player_turn = 1
                 print("\n\nWhites Turn")
 
-class Move():
+class Pawn():
     def __init__(self, dim):
-        self.king_first_move = False
-        self.rook_first_move = {}
         self.en_passant_potentials = None
         self.dim = dim
         self.Player_turn = 1
 
-    def check_piece_and_play(self, board, current_location, next_location, Player_turn, last_move):
+    def pawn_move_checker_en_passant(self, board, current_location, next_location, last_move, Player_turn):
         self.Player_turn = Player_turn
-        if board[current_location[0], current_location[1]] == self.Player_turn * 1:
-            return self.pawn_move_checker_en_passant(board, current_location, next_location, last_move)
-        elif board[current_location[0], current_location[1]] == self.Player_turn * 2:
-            return self.bishop_move_checker(board, current_location, next_location)
-        elif board[current_location[0], current_location[1]] == self.Player_turn * 3:
-            return self.knight_move_checker(board, current_location, next_location)
-
-    def pawn_move_checker_en_passant(self, board, current_location, next_location, last_move):
         if next_location in self.all_move_pawn(current_location, next_location):
             check = self.is_possible_pawn(board, current_location, next_location, last_move)
             if check[0]:
@@ -169,7 +159,13 @@ class Move():
                     return (True, 1)
         return (False, 0)
 
-    def knight_move_checker(self, board, current_location, next_location):
+class Knight():
+    def __init__(self, dim):
+        self.dim = dim
+        self.Player_turn = 1
+
+    def knight_move_checker(self, board, current_location, next_location, Player_turn):
+        self.Player_turn =Player_turn
         if next_location in self.all_move_knight(current_location, next_location):
             if self.Player_turn == 1:
                 if board[next_location[0], next_location[1]] <= 0:
@@ -192,11 +188,16 @@ class Move():
                 (start_square[0] + 2, start_square[1] - 1),
                 (start_square[0] - 2, start_square[1] + 1)]
 
-    def bishop_move_checker(self, board, current_location, next_location):
+class Bishop():
+    def __init__(self, dim):
+        self.dim = dim
+        self.Player_turn = 1
+
+    def bishop_move_checker(self, board, current_location, next_location, Player_turn):
+        self.Player_turn = Player_turn
         if next_location in self.diagonal_moves(board, current_location):
             return 1
         return 0
-
 
     def diagonal_moves(self, board, current_location):
         all_moves = []
@@ -247,6 +248,31 @@ class Move():
             col = 8
 
         return col
+
+
+
+
+
+class Move():
+    def __init__(self, dim):
+        self.king_first_move = False
+        self.rook_first_move = {}
+        self.pawn = Pawn(dim)
+        self.knight = Knight(dim)
+        self.bishop = Bishop(dim)
+        self.dim = dim
+        self.Player_turn = 1
+
+    def check_piece_and_play(self, board, current_location, next_location, Player_turn, last_move):
+        self.Player_turn = Player_turn
+        if board[current_location[0], current_location[1]] == self.Player_turn * 1:
+            return self.pawn.pawn_move_checker_en_passant(board, current_location, next_location, last_move, Player_turn)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 2:
+            return self.bishop.bishop_move_checker(board, current_location, next_location, Player_turn)
+        elif board[current_location[0], current_location[1]] == self.Player_turn * 3:
+            return self.knight.knight_move_checker(board, current_location, next_location, Player_turn)
+
+
 
 
 class HumanPlayer():
