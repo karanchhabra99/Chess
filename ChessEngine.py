@@ -210,7 +210,6 @@ class Move():
         for i in range(current_location[0]-1, -1, -1):
             forward_col, backward_col = self.diagonal_moves_helper(board, i, forward_col, backward_col, all_moves)
 
-        print(all_moves)
         return all_moves
 
     def diagonal_moves_helper(self, board, i, forward_col, backward_col, all_moves):
@@ -230,17 +229,20 @@ class Move():
         elif board[i, col] < 0:
             if self.Player_turn == 1:
                 all_moves.append((i, col))
-                if direction == 'forward':
-                    col = 8
-                else:
-                    col = 0
+
+            ## Intend the below logic to make the bishop jump accross his pieces
+            if direction == 'forward':
+                col = 8
+            else:
+                col = 0
         elif board[i, col] > 0:
             if self.Player_turn == -1:
                 all_moves.append((i, col))
-                if direction == 'forward':
-                    col = 8
-                else:
-                    col = 0
+            ## Intend the below logic to make the bishop jump accross his pieces
+            if direction == 'forward':
+                col = 8
+            else:
+                col = 0
         else:
             col = 8
 
