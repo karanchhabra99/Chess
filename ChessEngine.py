@@ -20,15 +20,27 @@ class GameState():
         self.human2 = HumanPlayer(self.dim, self.move)
 
     def get_board(self):
+        # board = np.array([
+        #     [-5, -3, -2, -9, -1000, -2, -3, -5],
+        #     [-1, -1, -1, -1, -1, -1, -1, -1],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [1, 1, 1, 1, 1, 1, 1, 1],
+        #     [5, 3, 2, 9, 1000, 2, 3, 5]])
+
+
         board = np.array([
-            [-5, -3, -2, -9, -1000, -2, -3, -5],
-            [-1, -1, -1, -1, -1, -1, -1, -1],
+            [-2, -9, -1000, -3, -5, -2, -3, -5],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [5, 3, 2, 9, 1000, 2, 3, 5]])
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [5, 2, 1000, 9, 3, 2, 3, 5]])
+
 
         # print(board[0, :])
         #
@@ -221,7 +233,7 @@ class Bishop():
     def diagonal_moves_helper(self, board, i, forward_col, backward_col, all_moves):
         forward_col += 1
         backward_col -= 1
-        if forward_col <= 7:
+        if forward_col <= self.dim - 1:
             forward_col = self.diagonal_moves_helpers_helper(board, i, forward_col, all_moves, 'forward')
 
         if not backward_col < 0:
@@ -238,7 +250,7 @@ class Bishop():
 
             ## Intend the below logic to make the bishop jump accross his pieces
             if direction == 'forward':
-                col = 8
+                col = self.dim
             else:
                 col = 0
         elif board[i, col] > 0:
@@ -246,11 +258,11 @@ class Bishop():
                 all_moves.append((i, col))
             ## Intend the below logic to make the bishop jump accross his pieces
             if direction == 'forward':
-                col = 8
+                col = self.dim
             else:
                 col = 0
         else:
-            col = 8
+            col = self.dim
 
         return col
 
@@ -270,7 +282,7 @@ class Rook:
         self.Player_turn = Player_turn
         all_moves = []
         i = current_location[0]+1
-        while self.dim > i:
+        while 8 > i:
             i = self.straight_moves_col_helper(board, i, current_location, all_moves, 'forward')
         i = current_location[0]-1
         while 0 <= i:
