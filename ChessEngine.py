@@ -30,6 +30,10 @@ class GameState():
             [1, 1, 1, 1, 1, 1, 1, 1],
             [5, 3, 2, 9, 1000, 2, 3, 5]])
 
+        # print(board[0, :])
+        #
+        # # board[0,:] = np.random.shuffle(board[0,:])
+
         return copy.deepcopy(board[:,:self.dim])
 
 
@@ -195,7 +199,7 @@ class Bishop():
 
     def bishop_move_checker(self, board, current_location, next_location, Player_turn):
         self.Player_turn = Player_turn
-        if next_location in self.diagonal_moves(board, current_location):
+        if next_location in self.diagonal_moves(board, current_location, Player_turn):
             return 1
         return 0
 
@@ -258,7 +262,7 @@ class Rook:
 
     def rook_move_checker(self, board, current_location, next_location, Player_turn):
         self.Player_turn = Player_turn
-        if next_location in self.straight_moves(board, current_location):
+        if next_location in self.straight_moves(board, current_location, Player_turn):
             return 1
         return 0
 
