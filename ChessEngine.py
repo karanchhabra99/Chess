@@ -20,26 +20,26 @@ class GameState():
         self.human2 = HumanPlayer(self.dim, self.move)
 
     def get_board(self):
-        # board = np.array([
-        #     [-5, -3, -2, -9, -1000, -2, -3, -5],
-        #     [-1, -1, -1, -1, -1, -1, -1, -1],
-        #     [0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 0, 0, 0, 0, 0, 0],
-        #     [0, 0, 0, 0, 0, 0, 0, 0],
-        #     [1, 1, 1, 1, 1, 1, 1, 1],
-        #     [5, 3, 2, 9, 1000, 2, 3, 5]])
-
-
         board = np.array([
-            [-2, -9, -1000, -3, -5, -2, -3, -5],
+            [-5, -3, -2, -9, -1000, -2, -3, -5],
+            [-1, -1, -1, -1, -1, -1, -1, -1],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [5, 2, 1000, 9, 3, 2, 3, 5]])
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [5, 3, 2, 9, 1000, 2, 3, 5]])
+
+
+        # board = np.array([
+        #     [-2, -9, -1000, -3, -5, -2, -3, -5],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0],
+        #     [5, 2, 1000, 9, 3, 2, 3, 5]])
 
 
         # print(board[0, :])
@@ -446,8 +446,6 @@ class Move():
         else:
             return 0
 
-
-
 class HumanPlayer():
     def __init__(self, dim, move):
         self.move = move
@@ -455,3 +453,21 @@ class HumanPlayer():
     def play(self, board, current_location, next_location, Player_turn, last_move):
         # Checks if the move is valid
         return self.move.check_piece_and_play(board, current_location, next_location, Player_turn, last_move)
+
+''''
+Modification:
+Original
+
+Issue AI: Karan
+Modyfing a Heuristic score map: Karan 
+
+AI:
+Get all the possible move for each piece: Karan
+Pawn, Knight, Bishop, Queen, Rook, King
+For each possible we need check what will be the game board score as we go deep: Zhiyan
+And calculate the heursitic score for the bottom-up: Zhiyan 
+[for whites turn: 
+Score = whites pieces(including the positions value) - Black pieces(including the positions value)]
+
+3 piece modifications: Karan
+'''

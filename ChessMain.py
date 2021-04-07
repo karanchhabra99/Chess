@@ -114,6 +114,6 @@ if __name__ == "__main__":
     # DIMENSION = int(input("Enter the Board width: "))
     # while ((DIMENSION < 5) and (DIMENSION > 8)):
     #     DIMENSION = int(input("Enter the Board width: "))
-    DIMENSION = 5
+    DIMENSION = 8
 
     main()
